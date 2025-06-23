@@ -31,13 +31,14 @@
 }
 
 .bg-pal-dark {
-    background: rgb(43, 26, 74);
-    background-attachment: fixed;
+    background: var(--pal-dark);
 }
 
-.bg-pal-light {
-    background: rgb(142, 87, 168);
-    background-attachment: fixed;
+.bg-pal-semidark {
+    background: var(--pal-semi-dark);
+
+}.bg-pal-light {
+    background: var(--pal-light);
 }
 
 .item-card {
