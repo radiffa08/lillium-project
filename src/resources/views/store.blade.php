@@ -53,7 +53,8 @@
                                     <a class="text-reset text-decoration-none" id="category-collapse-{{ $collapse_id }}"
                                         data-bs-toggle="collapse" onclick="storeCollapseState('{{ $collapse_id }}')"
                                         href="#{{ $collapse_id }}">
-                                        <i class="bi bi-chevron-up"></i>
+                                        <i id="category-chevron-down-{{$collapse_id}}" class="bi bi-chevron-down d-none"></i>
+                                        <i id="category-chevron-up-{{$collapse_id}}" class="bi bi-chevron-up"></i>
                                     </a>
                                 </div>
                             </div>
@@ -86,7 +87,13 @@
                             const shownId = shown[i];
                             try {
                                 const shownElement = document.getElementById(shownId);
+                                const chevronUp = document.getElementById("category-chevron-up-" + shownId)
+                                const chevronDown = document.getElementById("category-chevron-down-" + shownId)
+
                                 shownElement.classList.add("show")
+
+                                chevronUp.classList.add("d-none");
+                                chevronDown.classList.remove("d-none");
                             } catch (e) {
                                 console.log(e);
                             }
@@ -98,10 +105,20 @@
                             const element = document.getElementById("category-collapse-" + id);
                             const ariaExpanded = element.getAttribute('aria-expanded');
 
+                            const chevronUp = document.getElementById("category-chevron-up-" + id)
+                            const chevronDown = document.getElementById("category-chevron-down-" + id)
+
+
                             if (ariaExpanded == "true") {
                                 shown.push(id);
+                                chevronUp.classList.add("d-none");
+                                chevronDown.classList.remove("d-none");
+
                                 localStorage.setItem('category-collapse-shown', shown);
                             } else {
+                                chevronUp.classList.remove("d-none");
+                                chevronDown.classList.add("d-none");
+
                                 shown = shown.filter(x => x != id);
                                 localStorage.setItem('category-collapse-shown', shown);
                             }
@@ -131,6 +148,7 @@
 
                             const url = new URL(window.location.href);
                             url.searchParams.set('subcats', subcategories);
+                            url.searchParams.set('page', 1);
 
                             window.location.href = url.toString();
                         };

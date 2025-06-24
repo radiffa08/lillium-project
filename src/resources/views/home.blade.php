@@ -51,7 +51,8 @@
                 <h1 class="text-center my-3"> About Us </h1>
 
                 <p class="text-light text-start">
-                    The Lillium Project aims to make ethically-sourced, magical artifacts more accessible to individuals around the
+                    The Lillium Project aims to make ethically-sourced, magical artifacts more accessible to individuals
+                    around the
                     globe.
                     We hold a large collection of high quality trinkets with reasonable prices, delivered right to
                     your
@@ -60,33 +61,37 @@
                 </p>
                 <p class="text-light text-start">
                     We also aim to document every artifact and anomaly discovered worldwide, to spread awareness about their
-                    risks, as well as their utilities and quirks. We are a <span class="fw-bold text-decoration-underline">non-profit</span> organisation; all of the money collected from
+                    risks, as well as their utilities and quirks. We are a <span
+                        class="fw-bold text-decoration-underline">non-profit</span> organisation; all of the money collected
+                    from
                     your purchases will be used to further expand our research in the paranormal.
                 </p>
             </div>
         </div>
     </div>
 
-    <div class="container mb-5 text-light">
-        <h1 class="text-center mb-3"> Featured Products </h1>
+    @if (count($featured) > 0)
+        <div class="container mb-5 text-light">
+            <h1 class="text-center mb-3"> Featured Products </h1>
 
-        <div id="scroll-row" class="sideways-scroll-row row">
-            <div class="col sideways-scroll-item">
-                @for ($i = 0; $i < 4; $i++)
-                    @for ($j = 0; $j < 10; $j++)
-                        <a class="item-card card d-inline-block text-light text-decoration-none p-2" href="#">
-                            <img class="img" src="https://picsum.photos/id/{{ $j * 10 }}/200"
-                                style="width: 200px; height: 200px;">
-                            <h4 class="pt-2 my-0"> Item {{ $j }} </h4>
-                            <hr class="my-1">
-                            <h5 class="my-0 text-end"> Price </h5>
-                            <hr class="my-1">
-                        </a>
+            <div id="scroll-row" class="sideways-scroll-row row">
+                <div class="col sideways-scroll-item">
+                    @for ($i = 0; $i < ceil((50 / count($featured))); $i++)
+                        @foreach ($featured as $f)
+                            <a class="item-card card d-inline-block text-light text-decoration-none p-2" href="#">
+                                <img class="img" src="https://picsum.photos/id/{{ $f->product_id }}/200"
+                                    style="width: 200px; height: 200px;">
+                                <h4 class="pt-2 my-0"> {{ $f->product_name }} </h4>
+                                <hr class="my-1">
+                                <h5 class="my-0 text-end"> {{ $f->price }} </h5>
+                                <hr class="my-1">
+                            </a>
+                        @endforeach
                     @endfor
-                @endfor
+                </div>
             </div>
         </div>
-    </div>
+    @endif
 
     <script>
         const container = document.getElementById("scroll-row");

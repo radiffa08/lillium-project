@@ -30,7 +30,7 @@ class StoreController extends Controller
             where p.product_name like ?
             $category_selector
             group by p.product_id, c.category_id, p.product_name, c.category_name, p.price, p.description, pi.image_directory
-            order by pi.image_id
+            order by p.is_featured desc, pi.image_id asc
             ;
             "
             ,$bindings

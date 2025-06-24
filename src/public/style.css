@@ -2,6 +2,7 @@
     --pal-light: rgb(123, 69, 148);
     --pal-semi-dark: rgb(97, 59, 129);
     --pal-dark: rgb(43, 26, 74);
+    --pal-dark-translucent: rgba(43, 26, 74, 0.555);
     --pal-semidark-unsaturated: rgb(125, 117, 167);
     --pal-light-unsaturated: rgb(136, 129, 172);
     --pal-light-grey: rgb(192, 192, 192);
@@ -41,6 +42,14 @@
 
 }.bg-pal-light {
     background: var(--pal-light);
+}
+
+.bg-pal-light-unsaturated {
+    background: var(--pal-light-unsaturated);
+}
+
+.bg-dark-translucent {
+    background: var(--pal-dark-translucent);
 }
 
 .pal-light {

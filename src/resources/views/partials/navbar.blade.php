@@ -1,4 +1,5 @@
-<div class="container-fluid py-3 bg-pal-dark-semidark-gradient-center">
+<div
+    class="container-fluid py-3 {{ isset($background_off) && $background_off == true ? '' : 'bg-pal-dark-semidark-gradient-center' }}">
     <div class="container-fluid">
         <nav class="navbar navbar-expand-md d-flex justify-content-between px-5">
             <a class="fs-1 navbar-brand text-light d-flex align-items-center" href="/home">
@@ -29,10 +30,21 @@
                 </ul>
 
                 <ul class="navbar-nav text-end fw-semibold">
-                    <li class="nav-item">
-                        <a class="nav-link ms-5 fs-5 text-light" href="#">Login&nbsp;<i
-                                class="bi bi-box-arrow-in-right"></i></a>
-                    </li>
+                    @php
+                        use Illuminate\Support\Facades\Auth;
+
+                        $user = Auth::user();
+                    @endphp
+
+                    @if ($user == null)
+                        <li class="nav-item">
+                            <a class="nav-link ms-5 fs-5 text-light" href="/login">Login&nbsp;
+                                <i class="bi bi-box-arrow-in-right"></i></a>
+                        </li>
+                    @else
+                        <a class="nav-link ms-5 fs-5 text-light" href="/login">{{ $user->name }}&nbsp;
+                            <i class="bi bi-person-circle"></i></a>
+                    @endif
                 </ul>
             </div>
 
