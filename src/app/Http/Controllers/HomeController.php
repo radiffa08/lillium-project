@@ -14,12 +14,12 @@ class HomeController extends Controller
             select p.product_id, p.product_name, p.price, p.description, pi.image_directory from products p
             join subcategories s on s.subcategory_id  = p.subcategory_id 
             left join product_images pi on pi.product_id = p.product_id
-            where p.is_featured = true
             and pi.image_id = (
                 select MIN(image_id)
                 from product_images
                 where product_id = p.product_id
             )
+            where p.is_featured = true
             group by p.product_id, p.product_name, p.price, p.description, pi.image_directory
             order by pi.image_id
             ;

@@ -27,9 +27,11 @@
                 </div>
                 <div class="card back-card rounded-4 text-light pb-1">
                     <div class="row p-2">
-                        <form class="d-flex justify-content-lg-end justify-content-center" method="POST" action="{{ route('listing.new') }}">
+                        <form class="d-flex justify-content-lg-end justify-content-center" method="POST"
+                            action="{{ route('listing.new') }}">
                             @csrf
-                            <button type="submit" class="col-6 col-lg-4 btn btn-white border border-1 fs-3 py-3">New Product <i class="bi bi-plus-circle"></i></button>
+                            <button type="submit" class="col-6 col-lg-4 btn btn-white border border-1 fs-3 py-3">New
+                                Product <i class="bi bi-plus-circle"></i></button>
 
                         </form>
                     </div>
@@ -42,7 +44,9 @@
                     </div>
                     <div class="row my-2 mx-2 mb-3 d-flex justify-content-between align-items-end">
                         {{-- Showing --}}
-                        @include('partials.elements.pageslabel')
+                        <div class="col-auto">
+                            @include('partials.elements.pageslabel')
+                        </div>
 
                         <div class="col-auto d-flex align-items-center justify-content-end border p-2 rounded-3">
                             {{-- search bar --}}

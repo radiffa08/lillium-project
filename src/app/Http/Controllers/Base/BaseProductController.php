@@ -12,9 +12,24 @@ class BaseProductController extends Controller
 {
     public static function base_show(Request $request, $view, bool $sort_featured, bool $filter_on_sale)
     {
-        $search_query = $request->get('search_query') ?? "";  
+        $search_query = $request->get('search_query') ?? "";
         $subcats = explode(",", $request->get('subcats')) ?? [];
         $page = $request->get('page') ?? 1;
+
+
+        $validated = $request->validate([
+            'sortBy' => 'nullable|string|in:featured,price,name',
+            'sortOrder' => 'nullable|string|in:asc,desc',
+        ]);
+
+        $sortByMap = [
+            'featured' => 'p.is_featured',
+            'price' => 'p.price',
+            'name' => 'p.product_name'
+        ];
+
+        $sort_by = $request->get('sortBy') ?? 'featured';
+        $sort_order = $request->get('sortOrder') ?? 'asc';
 
         $categories = array_filter($subcats);
         $category_question_marks = implode(", ", array_fill(0, count($categories), "?"));
@@ -23,29 +38,31 @@ class BaseProductController extends Controller
         $bindings = $categories;
         array_unshift($bindings, "%" . $search_query . "%");
 
-        $sort_featured_query = $sort_featured ? 'p.is_featured desc,' : '';
+        $sort_by_query = array_key_exists('sortBy', $validated) ? $sortByMap[$validated['sortBy']] ?? 'p.is_featured' : 'p.is_featured';
+        $sort_order_query = array_key_exists('sortOrder', $validated) ? $validated['sortOrder'] ?? 'asc' : 'asc';
+
+        // $sort_featured_query = $sort_featured ? 'p.is_featured desc,' : '';
         $filter_on_sale_query = $filter_on_sale ? 'and p.is_on_sale = true' : '';
-        
+
         $products = DB::select(
             "
             select p.product_id, p.product_name, s.subcategory_name, p.price, p.description, pi.image_directory from products p
             join subcategories s on s.subcategory_id  = p.subcategory_id 
             left join product_images pi on pi.product_id = p.product_id
-            where p.product_name like ?
-            $category_selector
-            $filter_on_sale_query
             and pi.image_id = (
                 select MIN(image_id)
                 from product_images
                 where product_id = p.product_id
             )
-            group by p.product_id, p.product_name,s.subcategory_name, p.price, p.description, pi.image_directory
-            order by $sort_featured_query
+            where p.product_name like ?
+            $category_selector
+            $filter_on_sale_query
+            order by {$sort_by_query} {$sort_order_query},
             pi.image_id asc
             ;
-            "
-            ,$bindings
-        );  
+            ",
+            $bindings
+        );
 
         $collection = collect($products);
         $paginator = new LengthAwarePaginator($collection->forPage($page, 12), count($collection), 12, $page);
@@ -60,21 +77,23 @@ class BaseProductController extends Controller
 
         $categories_map = [];
 
-        foreach($categories as $c) {
+        foreach ($categories as $c) {
             $key = ['key' => $c->category_id, 'value' => $c->category_name];
 
             if (array_key_exists(serialize($key), $categories_map) === false) {
-                $categories_map[serialize($key)] = [['key' => $c->subcategory_id, 'value'=> $c->subcategory_name]];
+                $categories_map[serialize($key)] = [['key' => $c->subcategory_id, 'value' => $c->subcategory_name]];
             } else {
-                array_push($categories_map[serialize($key)], ['key' => $c->subcategory_id, 'value'=> $c->subcategory_name]);
+                array_push($categories_map[serialize($key)], ['key' => $c->subcategory_id, 'value' => $c->subcategory_name]);
             }
-        }   
+        }
 
         return view(
             $view,
             [
                 'search_query' => $search_query,
                 'active_subcats' => $subcats,
+                'sort_by' => $sort_by,
+                'sort_order' => $sort_order,
                 // 'products' => $products,
                 'categories_map' => $categories_map,
                 'paginator' => $paginator,

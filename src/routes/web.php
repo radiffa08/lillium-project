@@ -18,6 +18,8 @@ Route::get('/store', [StoreController::class, 'show']);
 Route::get('/login', [LoginController::class, 'show']);
 Route::post('/login/post', [LoginController::class, 'login']);
 
+Route::get('/logout', [LoginController::class, 'logout']);
+
 Route::get('/listing',                  [ListingController::class, 'show']);
 Route::get('/listing/productedit',      [ListingController::class, 'productedit'])->name('listing.productedit');
 Route::post('/listing/update',          [ListingController::class, 'update'])->name('listing.update');

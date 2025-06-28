@@ -62,7 +62,7 @@
                 <p class="text-light text-start">
                     We also aim to document every artifact and anomaly discovered worldwide, to spread awareness about their
                     risks, as well as their utilities and quirks. We are a <span
-                        class="fw-bold text-decoration-underline">non-profit</span> organisation; all of the money collected
+                        class="fw-bold text-decoration-underline">non-profit</span> organization; all of the money collected
                     from
                     your purchases will be used to further expand our research in the paranormal.
                 </p>

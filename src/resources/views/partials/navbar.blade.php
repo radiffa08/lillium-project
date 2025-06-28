@@ -50,10 +50,14 @@
                             </a>
                         </li>
                         @endif
-                        <li class="nav-item">
-                            <a class="nav-link ms-5 fs-5 text-light" href="/login">{{ $user->name }}&nbsp;
+                        <li class="dropdown nav-item">
+                            <button type="button" id="dropdown-profile" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link ms-5 fs-5 text-light">{{ $user->name }}&nbsp;
                                 <i class="bi bi-person-circle"></i>
-                            </a>
+                            </button>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdown-profile">
+                                <a class="dropdown-item" href="/logout">Logout</a>
+                              </div>
                         </li>
                     @endif
                 </ul>

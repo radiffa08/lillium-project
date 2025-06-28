@@ -189,7 +189,7 @@
                                         @endphp
                                         @foreach ($product_images as $pi)
                                             <div
-                                                class="carousel-item {{ $i == 0 ? 'active' : '' }} ratio ratio-1x1 border border-5 rounded-2">
+                                                class="carousel-item {{ $i == 0 ? 'active' : '' }} ratio ratio-1x1 border border-5 rounded-4">
                                                 <img class="d-block w-100 rounded-4 img-fluid object-fit-cover"
                                                     src="/storage/{{ $pi->image_directory }}">
 

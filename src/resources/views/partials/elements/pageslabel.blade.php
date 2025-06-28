@@ -5,10 +5,8 @@
     $last_page = isset($paginator) ? $paginator->lastPage() : 1;
 @endphp
 
-<div class="col-auto">
-    <span> Showing </span> {{ $count }} <span> of </span> {{ $paginator->total() }} |
-    <span> Page </span>
-    {{ $current_page }}
-    <span> of </span>
-    {{ $last_page }}
-</div>
+<span> Showing </span> {{ $count }} <span> of </span> {{ $paginator->total() }} |
+<span> Page </span>
+{{ $current_page }}
+<span> of </span>
+{{ $last_page }}

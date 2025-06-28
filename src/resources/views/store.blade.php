@@ -51,12 +51,20 @@
                     </div>
                 </div>
 
-                <div class="row my-2 mx-2 d-flex justify-content-end">
+                <div class="row my-2 mx-0 px-1 d-flex justify-content-between">
+                    {{-- sort menu --}}
+                    <div class="col-6 p-0">
+
+                        @include('partials.elements.sortmenu')
+                    </div>
                     {{-- page label --}}
-                    @include('partials.elements.pageslabel')
+                    <div class="col-auto p-0 mt-2">
+
+                        @include('partials.elements.pageslabel')
+                    </div>
                 </div>
 
-                {{--            PRODUCTS                 --}}
+                {{--            PRODUCTS              --}}
 
                 <div class="row d-flex justify-content-center">
                     <div class="d-inline-flex flex-wrap justify-content-start">
