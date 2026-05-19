@@ -132,6 +132,22 @@
 
                         <hr class="opacity-75 my-2 border-4">
 
+                        <div class="form-group mb-2">
+                            <div class="col-12 col-md-6">
+                                {{-- Amount in Stock --}}
+                                <label for="amount_in_stock" class="fs-4"> Amount in Stock </label>
+
+                                @error('amount_in_stock')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+
+                                <input id="amount_in_stock" class="form-control" name="amount_in_stock" type="text"
+                                    value="{{ old('amount_in_stock', $product->amount_in_stock) }}">
+                            </div>
+                        </div>
+
+                        <hr class="opacity-75 my-2 border-4">
+
                         @if (count($product_images) > 0)
                             <div class="form-group mb-2">
                                 {{-- Thumbnail --}}

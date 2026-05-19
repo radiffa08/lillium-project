@@ -18,14 +18,15 @@ class BaseProductController extends Controller
 
 
         $validated = $request->validate([
-            'sortBy' => 'nullable|string|in:featured,price,name',
+            'sortBy' => 'nullable|string|in:featured,price,name,rating',
             'sortOrder' => 'nullable|string|in:asc,desc',
         ]);
 
         $sortByMap = [
             'featured' => 'p.is_featured',
             'price' => 'p.price',
-            'name' => 'p.product_name'
+            'name' => 'p.product_name',
+            'rating' => 'uc.rating'
         ];
 
 
@@ -48,8 +49,9 @@ class BaseProductController extends Controller
 
         $products = DB::select(
             "
-            select p.product_id, p.product_name, s.subcategory_name, p.price, p.description, pi.image_directory from products p
+            select p.product_id, p.product_name, s.subcategory_name, p.price, p.description, pi.image_directory, sum(uc.rating) as sum_rating, coalesce(avg(uc.rating), 0) as avg_rating from products p
             join subcategories s on s.subcategory_id  = p.subcategory_id 
+            left join user_comments uc on uc.product_id = p.product_id
             left join product_images pi on pi.product_id = p.product_id
             and pi.image_id = (
                 select MIN(image_id)
@@ -59,6 +61,7 @@ class BaseProductController extends Controller
             where p.product_name like ?
             $category_selector
             $filter_on_sale_query
+            group by p.product_id, p.product_name, s.subcategory_name, p.price, p.description, pi.image_directory
             order by {$sort_by_query} {$sort_order_query},
             pi.image_id asc
             ;

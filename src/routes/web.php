@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\UserCommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -32,3 +34,6 @@ Route::post('/listing/delete',          [ListingController::class, 'delete'])->n
 Route::post('/listing/image/delete',    [ListingController::class, 'delete_image'])->name('listing.image.delete');
 
 Route::get('/product', [ProductPageController::class, 'show'])->name('productpage');
+
+Route::get('/product/buy', [BuyerController::class, 'buy_product'])->name('product.buy');
+Route::post('/product/comment', [UserCommentController::class, 'comment'])->name('product.comment');

@@ -144,7 +144,8 @@ class ListingController extends Controller
                 'is_featured' => 'nullable|in:on,1',
                 'price' => 'decimal:0,2|between:0,9999999999.99',
                 'description' => 'nullable|string',
-                'category' => 'int'
+                'category' => 'int',
+                'amount_in_stock' => 'int|min:0'
             ]);
 
             $is_on_sale = ($validated['is_on_sale'] ?? null) === 'on' ? 1 : 0;
@@ -160,7 +161,8 @@ class ListingController extends Controller
                         'is_featured' => $is_featured,
                         'description' => $validated['description'],
                         'price' => $validated['price'],
-                        'subcategory_id' => $validated['category']
+                        'subcategory_id' => $validated['category'],
+                        'amount_in_stock' => $validated['amount_in_stock']
                     ]);
 
                 if ($request->hasFile('thumbnail')) {

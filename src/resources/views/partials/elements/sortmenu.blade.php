@@ -6,7 +6,10 @@
             <div class="input-group">
                 <select id="sortBy" name="sortBy" class="form-select" onchange="submitSortForm(this)">
                     <option value="featured" @if ($sort_by == "featured") selected @endif> Featured </option>
+                    <option value="rating" @if ($sort_by == "rating") selected @endif> Rating </option>
+                    <option value="name" @if ($sort_by == "name") selected @endif> Name </option>
                     <option value="price" @if ($sort_by == "price") selected @endif> Price </option>
+
                 </select>
             </div>
         </div>
