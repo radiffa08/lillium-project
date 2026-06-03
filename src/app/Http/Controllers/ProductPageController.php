@@ -19,13 +19,22 @@ class ProductPageController extends Controller
         $product = DB::selectOne(
             "
             SELECT 
-                p.*, 
+                p.product_id,
+                p.product_name,
+                p.price,
+                p.description,
+                p.subcategory_id,
+                p.is_on_sale,
+                p.is_featured,
+                p.amount_in_stock,
                 s.subcategory_name,
                 COALESCE(SUM(uc.rating), 0) AS total_rating,
                 COALESCE(AVG(uc.rating), 0) AS average_rating
             FROM products p
-            JOIN subcategories s ON s.subcategory_id = p.subcategory_id
-            LEFT JOIN user_comments uc ON uc.product_id = p.product_id
+            JOIN subcategories s 
+                ON s.subcategory_id = p.subcategory_id
+            LEFT JOIN user_comments uc 
+                ON uc.product_id = p.product_id
             WHERE p.product_id = ?
             GROUP BY 
                 p.product_id,
@@ -33,8 +42,10 @@ class ProductPageController extends Controller
                 p.price,
                 p.description,
                 p.subcategory_id,
-                s.subcategory_name,
-                p.is_on_sale, p.is_featured, p.amount_in_stock;
+                p.is_on_sale,
+                p.is_featured,
+                p.amount_in_stock,
+                s.subcategory_name;
 
              ", [$product_id]
         );

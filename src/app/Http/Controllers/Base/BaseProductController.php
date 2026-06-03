@@ -49,22 +49,42 @@ class BaseProductController extends Controller
 
         $products = DB::select(
             "
-            select p.product_id, p.product_name, s.subcategory_name, p.price, p.description, pi.image_directory, sum(uc.rating) as sum_rating, coalesce(avg(uc.rating), 0) as avg_rating from products p
-            join subcategories s on s.subcategory_id  = p.subcategory_id 
-            left join user_comments uc on uc.product_id = p.product_id
-            left join product_images pi on pi.product_id = p.product_id
-            and pi.image_id = (
-                select MIN(image_id)
-                from product_images
-                where product_id = p.product_id
-            )
-            where p.product_name like ?
+            SELECT 
+                p.product_id,
+                p.product_name,
+                s.subcategory_name,
+                p.price,
+                p.description,
+                pi.image_directory,
+                pi.image_id,
+                COALESCE(SUM(uc.rating), 0) AS sum_rating,
+                COALESCE(AVG(uc.rating), 0) AS avg_rating
+            FROM products p
+            JOIN subcategories s 
+                ON s.subcategory_id = p.subcategory_id 
+            LEFT JOIN user_comments uc 
+                ON uc.product_id = p.product_id
+            LEFT JOIN product_images pi 
+                ON pi.product_id = p.product_id
+                AND pi.image_id = (
+                    SELECT MIN(image_id)
+                    FROM product_images
+                    WHERE product_id = p.product_id
+                )
+            WHERE p.product_name LIKE ?
             $category_selector
             $filter_on_sale_query
-            group by p.product_id, p.product_name, s.subcategory_name, p.price, p.description, pi.image_directory
-            order by {$sort_by_query} {$sort_order_query},
-            pi.image_id asc
-            ;
+            GROUP BY 
+                p.product_id,
+                p.product_name,
+                s.subcategory_name,
+                p.price,
+                p.description,
+                pi.image_directory,
+                pi.image_id
+            ORDER BY 
+                {$sort_by_query} {$sort_order_query},
+                pi.image_id ASC;
             ",
             $bindings
         );
