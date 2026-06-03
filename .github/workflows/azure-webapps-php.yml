@@ -84,7 +84,6 @@ jobs:
           cat > .env <<EOF
           APP_NAME=Laravel
           APP_ENV=local
-          APP_KEY=${{ secrets.APP_KEY }}
           APP_DEBUG=true
           APP_URL=http://localhost
 
@@ -97,13 +96,18 @@ jobs:
 
           LOG_CHANNEL=stack
           EOF
+        
+      - name: Generate APP_KEY
+        working-directory: src
+        run: php artisan key:generate --force
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: php-app
           path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-      
+          include-hidden-files: true
+          
   deploy:
     permissions:
       contents: none
