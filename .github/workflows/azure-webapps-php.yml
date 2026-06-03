@@ -89,7 +89,7 @@ jobs:
           APP_URL=http://localhost
 
           DB_CONNECTION=mariadb
-          DB_HOST=${{ secrets.DB_URL }}
+          DB_HOST=${{ secrets.DB_HOST }}
           DB_PORT=3306
           DB_DATABASE=lillium
           DB_USERNAME=${{ secrets.DB_USERNAME }}
