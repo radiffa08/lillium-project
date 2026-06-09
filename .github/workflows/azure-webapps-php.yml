@@ -104,7 +104,11 @@ jobs:
       - name: Generate APP_KEY
         working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: php artisan key:generate --force
-      
+  
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
       - name: Install Dusk ChromeDriver
         working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: php artisan dusk:chrome-driver --detect
@@ -133,7 +137,7 @@ jobs:
           name: php-app
           path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
           include-hidden-files: true
-          
+  
   deploy:
     permissions:
       contents: none
