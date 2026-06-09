@@ -29,6 +29,8 @@ env:
   AZURE_WEBAPP_PACKAGE_PATH: 'src'      # set this to the path to your web app project, defaults to the repository root
   PHP_VERSION: '8.5'                  # set this to the PHP version to use
   
+  APP_ENV: testing
+
   # use .env file instead
   # DB_CONNECTION: mariadb
   # DB_HOST: ${{ secrets.DB_HOST }}
