@@ -141,7 +141,6 @@ jobs:
       - name: Run Dusk testing
         working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: php artisan dusk
-          working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
   deploy:
     permissions:
