@@ -55,12 +55,12 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@87d74d4732ddb824259d80c8a508c0124bf1c673
         with:
-          files: 'src/composer.json'
+          files: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/composer.json'
 
       - name: Get Composer Cache Directory
         id: composer-cache
         if: steps.check_files.outputs.files_exists == 'true'
-        working-directory: src
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
@@ -75,18 +75,18 @@ jobs:
 
       - name: Run composer install if composer.json exists
         if: steps.check_files.outputs.files_exists == 'true'
-        working-directory: src
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
 
       - name: Generate .env file
-        working-directory: src
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: |
           cat > .env <<EOF
           APP_NAME=Laravel
           APP_KEY=
           APP_ENV=local
           APP_DEBUG=true
-          APP_URL=http://localhost
+          APP_URL=http://127.0.0.1:8000
 
           DB_CONNECTION=mariadb
           DB_HOST=${{ secrets.DB_HOST }}
@@ -99,8 +99,30 @@ jobs:
           EOF
         
       - name: Generate APP_KEY
-        working-directory: src
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: php artisan key:generate --force
+      
+      - name: Install Dusk ChromeDriver
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: php artisan dusk:chrome-driver --detect
+      
+      - name: Start application
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: php artisan serve --host=127.0.0.1 --port=8000 > storage/logs/serve.log 2>&1 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            curl -s http://127.0.0.1:8000 && echo "up" && exit 0
+            sleep 1
+          done
+          echo "Server failed to start"
+          cat storage/logs/serve.log
+          exit 1
+
+      - name: Run Dusk testing
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: php artisan dusk
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
