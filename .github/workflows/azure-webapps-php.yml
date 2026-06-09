@@ -104,12 +104,136 @@ jobs:
       - name: Generate APP_KEY
         working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: php artisan key:generate --force
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-app
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          include-hidden-files: true# This workflow will build and push a PHP application to an Azure Web App when a commit is pushed to your default branch.
+#
+# This workflow assumes you have already created the target Azure App Service web app.
+# For instructions see https://docs.microsoft.com/en-us/azure/app-service/quickstart-php?pivots=platform-linux
+#
+# To configure this workflow:
+#
+# 1. Download the Publish Profile for your Azure Web App. You can download this file from the Overview page of your Web App in the Azure Portal.
+#    For more information: https://docs.microsoft.com/en-us/azure/app-service/deploy-github-actions?tabs=applevel#generate-deployment-credentials
+#
+# 2. Create a secret in your repository named AZURE_WEBAPP_PUBLISH_PROFILE, paste the publish profile contents as the value of the secret.
+#    For instructions on obtaining the publish profile see: https://docs.microsoft.com/azure/app-service/deploy-github-actions#configure-the-github-secret
+#
+# 3. Change the value for the AZURE_WEBAPP_NAME. Optionally, change the AZURE_WEBAPP_PACKAGE_PATH and PHP_VERSION environment variables below.
+#
+# For more information on GitHub Actions for Azure: https://github.com/Azure/Actions
+# For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
+
+name: Build and deploy PHP app to Azure Web App
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: lillium       # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: 'src'      # set this to the path to your web app project, defaults to the repository root
+  PHP_VERSION: '8.5'                  # set this to the PHP version to use
+  
+  APP_ENV: testing
+
+  # use .env file instead
+  # DB_CONNECTION: mariadb
+  # DB_HOST: ${{ secrets.DB_HOST }}
+  # DB_PORT: 3306
+  # DB_DATABASE: lillium
+  # DB_USERNAME: ${{ secrets.DB_USERNAME }}
+  # DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@7c0b4c8c8ebed23eca9ec2802474895d105b11bc
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+
+      - name: Check if composer.json exists
+        id: check_files
+        uses: andstor/file-existence-action@87d74d4732ddb824259d80c8a508c0124bf1c673
+        with:
+          files: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/composer.json'
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        if: steps.check_files.outputs.files_exists == 'true'
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Set up dependency caching for faster installs
+        uses: actions/cache@v3
+        if: steps.check_files.outputs.files_exists == 'true'
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Run composer install if composer.json exists
+        if: steps.check_files.outputs.files_exists == 'true'
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
+
+      - name: Generate .env file
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: |
+          cat > .env <<EOF
+          APP_NAME=Laravel
+          APP_KEY=
+          APP_ENV=local
+          APP_DEBUG=true
+          APP_URL=http://127.0.0.1:8000
+
+          DB_CONNECTION=mariadb
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=3306
+          DB_DATABASE=lillium
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+          LOG_CHANNEL=stack
+          EOF
+        
+      - name: Generate APP_KEY
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: php artisan key:generate --force
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-app
+          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          include-hidden-files: true
   
   test:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: php-app
+          
       - name: Install Dusk ChromeDriver
         working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: php artisan dusk:chrome-driver --detect
@@ -131,13 +255,60 @@ jobs:
       - name: Run Dusk testing
         working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         run: php artisan dusk
+  
+  deploy:
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest
+    needs: test
+    environment:
+      name: 'Development'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
         with:
           name: php-app
-          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-          include-hidden-files: true
+
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
+
+  
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: php-app
+
+      - name: Install Dusk ChromeDriver
+        run: php artisan dusk:chrome-driver --detect
+      
+      - name: Start application
+        run: php artisan serve --host=127.0.0.1 --port=8000 > storage/logs/serve.log 2>&1 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            curl -s http://127.0.0.1:8000 && echo "up" && exit 0
+            sleep 1
+          done
+          echo "Server failed to start"
+          cat storage/logs/serve.log
+          exit 1
+
+      - name: Run Dusk testing
+        working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        run: php artisan dusk
   
   deploy:
     permissions:
