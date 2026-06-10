@@ -127,6 +127,13 @@ jobs:
         with:
           name: php-app
 
+      - name: Run Pest Tests
+        run:  php vendor/bin/pest
+      
+      - name: Run Larastan Tests
+        run:  php vendor/bin/phpstan analyse
+        continue-on-error: true
+        
       - name: Install Dusk ChromeDriver
         run: php artisan dusk:chrome-driver --detect
       
