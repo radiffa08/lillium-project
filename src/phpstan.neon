@@ -7,7 +7,6 @@ parameters:
     paths:
         - app
         - routes
-        - tests
 
     excludePaths:
         - storage/*
